@@ -149,13 +149,16 @@ type MessagePackSerializer struct {
 // Serialize encodes a Message into a msgpack payload.
 func (s *MessagePackSerializer) Serialize(msg Message) ([]byte, error) {
 	var b []byte
-	return b, codec.NewEncoderBytes(&b, new(codec.MsgpackHandle)).Encode(toList(msg))
+	var h codec.MsgpackHandle
+	h.WriteExt = true
+	return b, codec.NewEncoderBytes(&b, &h).Encode(toList(msg))
 }
 
 // Deserialize decodes a msgpack payload into a Message.
 func (s *MessagePackSerializer) Deserialize(data []byte) (Message, error) {
 	var arr []interface{}
-	if err := codec.NewDecoderBytes(data, new(codec.MsgpackHandle)).Decode(&arr); err != nil {
+	var h codec.MsgpackHandle
+	if err := codec.NewDecoderBytes(data, &h).Decode(&arr); err != nil {
 		return nil, err
 	} else if len(arr) == 0 {
 		return nil, fmt.Errorf("Invalid message")
