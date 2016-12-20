@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"net"
 )
 
 // errors.
@@ -144,15 +145,23 @@ func (ep *websocketPeer) run() {
 	if ep.MaxMsgSize > 0 {
 		ep.conn.SetReadLimit(ep.MaxMsgSize)
 	}
-	ep.conn.SetPongHandler(func(v string) error {
-		log.Println("pong:", v)
+	ep.conn.SetPongHandler(func(message string) error {
+		log.Println("pong:", message)
 		ep.updateReadDeadline()
 		return nil
 	})
-	ep.conn.SetPingHandler(func(v string) error {
-		log.Println("ping:", v)
+	ep.conn.SetPingHandler(func(message string) error {
+		log.Println("ping:", message)
 		ep.updateReadDeadline()
-		return nil
+
+		// Send Pong Back
+		err := ep.conn.WriteControl(websocket.PongMessage, []byte(message), time.Now().Add(time.Second))
+		if err == websocket.ErrCloseSent {
+			return nil
+		} else if e, ok := err.(net.Error); ok && e.Temporary() {
+			return nil
+		}
+		return err
 	})
 
 	for {
