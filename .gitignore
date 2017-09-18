@@ -1,9 +1,9 @@
+
+### Go template
 # Compiled Object files, Static and Dynamic libs (Shared Objects)
 *.o
 *.a
 *.so
-# test binaries
-*.test
 
 # Folders
 _obj
@@ -22,6 +22,18 @@ _cgo_export.*
 _testmain.go
 
 *.exe
+*.test
+*.prof
 
-# Editor cruft
-*.swp
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# external packages folder
+vendor/
+
+# embedded gopath
+gopath/
+
+
+### Jetbrains IDE
+.idea/
